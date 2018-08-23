@@ -8,6 +8,8 @@ import torch.nn as nn
 from torch.autograd import Variable
 import data
 
+from utils import repackage_hidden
+
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 
 parser.add_argument('--data', type=str, default='data/penn/',
@@ -68,13 +70,6 @@ def batchify(data, bsz):
     return data
 #######################################################################
 
-def repackage_hidden(h):
-    """Wraps hidden states in new Variables, to detach them from their history."""
-    if type(h) == Variable:
-        return Variable(h.data)
-    else:
-        return tuple(repackage_hidden(v) for v in h)
-
 
 def get_batch(source, i, evaluation=False):
     seq_len = min(args.bptt, len(source) - 1 - i)
@@ -113,7 +108,6 @@ def gradstat():
         total_loss += loss.data
 
         batch += 1
-
 
         i += seq_len
         if args.max_batches>0:

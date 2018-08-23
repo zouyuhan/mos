@@ -116,8 +116,8 @@ class RNNModel(nn.Module):
 
     def init_hidden(self, bsz):
         weight = next(self.parameters()).data
-        return [(Variable(weight.new(1, bsz, self.nhid if l != self.nlayers - 1 else self.nhidlast).zero_()),
-                 Variable(weight.new(1, bsz, self.nhid if l != self.nlayers - 1 else self.nhidlast).zero_()))
+        return [(weight.new(1, bsz, self.nhid if l != self.nlayers - 1 else self.nhidlast).zero_(),
+                 weight.new(1, bsz, self.nhid if l != self.nlayers - 1 else self.nhidlast).zero_())
                 for l in range(self.nlayers)]
 
 if __name__ == '__main__':

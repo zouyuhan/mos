@@ -6,7 +6,6 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
 
 import gc
 
@@ -90,7 +89,7 @@ if args.small_batch_size < 0:
     args.small_batch_size = args.batch_size
 
 if not args.continue_train:
-    args.save = '{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
+    # args.save = '{}-{}'.format(args.save, time.strftime("%Y%m%d-%H%M%S"))
     create_exp_dir(args.save, scripts_to_save=['main.py', 'model.py'])
 
 def logging(s, print_=True, log_=True):
@@ -167,7 +166,7 @@ def evaluate(data_source, batch_size=10):
         total_loss += loss * len(data)
 
         hidden = repackage_hidden(hidden)
-    return total_loss[0] / len(data_source)
+    return total_loss.item() / len(data_source)
 
 
 def train():
@@ -220,13 +219,13 @@ def train():
             gc.collect()
 
         # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
-        torch.nn.utils.clip_grad_norm(model.parameters(), args.clip)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.clip)
         optimizer.step()
 
         # total_loss += raw_loss.data
         optimizer.param_groups[0]['lr'] = lr2
         if batch % args.log_interval == 0 and batch > 0:
-            cur_loss = total_loss[0] / args.log_interval
+            cur_loss = total_loss.item() / args.log_interval
             elapsed = time.time() - start_time
             logging('| epoch {:3d} | {:5d}/{:5d} batches | lr {:02.2f} | ms/batch {:5.2f} | '
                     'loss {:5.2f} | ppl {:8.2f}'.format(
